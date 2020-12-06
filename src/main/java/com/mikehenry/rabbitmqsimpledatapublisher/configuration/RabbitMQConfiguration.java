@@ -44,7 +44,6 @@ public class RabbitMQConfiguration {
     public boolean publishMessage(String message, String queueName) {
         boolean success = false;
         try {
-            //channel.queueDeclare(queueName, true, false, false, null);
             channel.basicPublish("amq.direct", queueName, null, message.getBytes());
             logger.info("Successfully published message");
             success = true;
