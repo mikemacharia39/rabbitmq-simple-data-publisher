@@ -1,13 +1,13 @@
 package com.mikehenry.rabbitmqsimpledatapublisher.configuration;
 
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 public class RabbitMQConfiguration {
@@ -44,11 +44,25 @@ public class RabbitMQConfiguration {
     public boolean publishMessage(String message, String queueName) {
         boolean success = false;
         try {
-            channel.basicPublish("amq.direct", queueName, null, message.getBytes());
+            channel.exchangeDeclare("amq.direct", "direct", true);
+
+            Map<String, Object> queueArgs = new HashMap<>();
+            queueArgs.put("x-queue-type", "classic");
+
+            channel.queueDeclare(queueName, true, false, false, queueArgs);
+
+            channel.queueBind(queueName, "amq.direct", queueName);
+
+            channel.basicPublish("amq.direct", queueName, null, message.getBytes(StandardCharsets.UTF_8));
+
             logger.info("Successfully published message");
+
             success = true;
-        } catch (IOException e) {
+        } catch (ShutdownSignalException e) {
+            logger.error("ShutdownSignalException occurred publishing message in rabbitmq. Error: " + e.getMessage());
+        }catch (IOException e) {
             logger.error("IOException occurred publishing message in rabbitmq. Error: " + e.getMessage());
+            e.printStackTrace();
         }
 
         return success;

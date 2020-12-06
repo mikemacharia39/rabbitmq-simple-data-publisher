@@ -39,24 +39,31 @@ public class EmployeeController {
 
             logger.info("Publishing request: " + params.toString());
 
-            rabbitMQConfiguration.publishMessage(params, queueName);
+            boolean isSuccessPublish = rabbitMQConfiguration.publishMessage(params, queueName);
+            if (!isSuccessPublish) {
+                Map<Object, Object> response = new HashMap<>();
+                response.put("statusCode", 0);
+                response.put("message", "Your request to create employee was unsuccessful");
+
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
 
             Map<Object, Object> response = new HashMap<>();
             response.put("statusCode", 1);
             response.put("message", "Your request to create employee was successful");
 
-            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (JsonProcessingException e) {
             logger.error("JSONProcessing error " + e.getMessage());
         }
 
-        return new ResponseEntity<>(defaultError(), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(defaultError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private Map<Object, Object> defaultError() {
         Map<Object, Object> response = new HashMap<>();
-        response.put("statusCode", 1);
-        response.put("message", "Your request to create employee was successful");
+        response.put("statusCode", 0);
+        response.put("message", "Your request to create employee was unsuccessful");
 
         return response;
     }
