@@ -37,7 +37,7 @@ public class EmployeeController {
 
             String params = requestObjectMapper.writeValueAsString(paramMap);
 
-            logger.info("Publishing request: " + params.toString());
+            logger.info("Publishing request: " + params);
 
             boolean isSuccessPublish = rabbitMQConfiguration.publishMessage(params, queueName);
             if (!isSuccessPublish) {
