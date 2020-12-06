@@ -5,7 +5,7 @@
 ### Getting started
 
 * The application shows how to work with RabbitMQ to publish messages to  a queue
-* This setup auto set's up exchanges, queues and bindings
+* The application auto set's up exchanges, queues and bindings
 
 * Ensure you have installed the below applications
 
