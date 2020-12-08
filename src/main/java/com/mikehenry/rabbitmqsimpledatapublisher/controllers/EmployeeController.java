@@ -2,31 +2,32 @@ package com.mikehenry.rabbitmqsimpledatapublisher.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mikehenry.rabbitmqsimpledatapublisher.configuration.RabbitConfig;
 import com.mikehenry.rabbitmqsimpledatapublisher.configuration.RabbitMQConfiguration;
 import com.mikehenry.rabbitmqsimpledatapublisher.dto.EmployeeDTO;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller
+@RestController
 @RequestMapping("/employee")
+@AllArgsConstructor
 public class EmployeeController {
 
-    RabbitMQConfiguration rabbitMQConfiguration = new RabbitMQConfiguration();
-    String queueName = "EMPLOYEE_DATA_CONSUMER";
+    RabbitMQConfiguration rabbitMQConfiguration;
+    RabbitConfig rabbitConfig;
 
-    Logger logger = LoggerFactory.getLogger(EmployeeController.class);
-
+    @ResponseBody
     @PostMapping("/create")
     public ResponseEntity<Object> createEmployee(@RequestBody EmployeeDTO request) {
+        Logger logger = LoggerFactory.getLogger(EmployeeController.class);
+
         logger.info("Received request: " + request.toString());
         try {
             ObjectMapper requestObjectMapper = new ObjectMapper();
@@ -39,7 +40,13 @@ public class EmployeeController {
 
             logger.info("Publishing request: " + params);
 
-            boolean isSuccessPublish = rabbitMQConfiguration.publishMessage(params, queueName);
+            logger.info("Queue: " + rabbitConfig.getQueueName());
+
+            boolean isSuccessPublish = rabbitMQConfiguration.publishMessage(
+                    params,
+                    rabbitConfig.getQueueName(),
+                    rabbitConfig);
+
             if (!isSuccessPublish) {
                 Map<Object, Object> response = new HashMap<>();
                 response.put("statusCode", 0);
