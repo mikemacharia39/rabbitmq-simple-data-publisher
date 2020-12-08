@@ -18,8 +18,13 @@
 
 ### Application flows and processes
 
-*  EmployeeController - The class initializes the RabbitMQConfiguration that is responsible for opening connections to 
-rabbitMQ
+* configuration/RabbitMQConfiguration - Contains configurations required to connect to RabbitMQ. Connection information is inside the
+application.properties file.
+
+* exceptions/ValidationExceptions - Is a controller advise that returns any validation exceptions while receiving 
+requests on the controller class. The EmployeeDTO contains the different ways to validate the received request.
+
+*  controllers/EmployeeController - The class receives request to create customer
      - The class contains createEmployee() that calls the publishMessage() to queue the message for asynchronous processing
 
 
