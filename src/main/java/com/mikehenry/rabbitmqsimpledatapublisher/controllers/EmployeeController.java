@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +27,7 @@ public class EmployeeController {
 
     @ResponseBody
     @PostMapping("/create")
-    public ResponseEntity<Object> createEmployee(@RequestBody EmployeeDTO request) {
+    public ResponseEntity<Object> createEmployee(@Valid @RequestBody EmployeeDTO request) {
         Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 
         logger.info("Received request: " + request.toString());
@@ -33,8 +35,8 @@ public class EmployeeController {
             ObjectMapper requestObjectMapper = new ObjectMapper();
             Map<Object, Object> paramMap = new HashMap<>();
             paramMap.put("employeeName", request.getEmployeeName());
-            paramMap.put("salary", request.getSalary());
-            paramMap.put("age", request.getAge());
+            paramMap.put("salary", new BigDecimal(request.getSalary()));
+            paramMap.put("age", Integer.parseInt(request.getAge()));
 
             String params = requestObjectMapper.writeValueAsString(paramMap);
 
